@@ -38,7 +38,15 @@ def respond():
     response = get_response(text)
 # now just send the message back
     # notice how we specify the chat and the msg we reply to
-    bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
+    #bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
+
+    if len(response) > 4096:
+       for x in range(0, len(response), 4096):
+          bot.send_message(chat_id=chat_id, text=response[x:x+4096])
+    else:
+       bot.send_message(chat_id=chat_id, text=response)
+
+
     return 'ok'
 
 
