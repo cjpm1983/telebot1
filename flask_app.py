@@ -35,6 +35,15 @@ def respond():
     text = update.message.text.encode('utf-8').decode()
     print("got text message :", text)
 # here we call our super AI
+    '''
+    markup = {'inline_keyboard': [[{'text': 'Gn', 'callback_data': 'Return value 1'},
+             {'text': 'Mt', 'callback_data': 'Return value 2'}]]}
+    if text == '/start':
+        bot.sendMessage (chat_id=chat_id, text=str("Hi! Which one do you want? choose from the below keyboard buttons."), reply_markup=markup)
+        bot.sendMessage(chat_id=chat_id, text=str(now.hour)+str(":")+str(now.minute))
+        return 'ok'
+    '''
+    
     response = get_response(text)
 # now just send the message back
     # notice how we specify the chat and the msg we reply to
