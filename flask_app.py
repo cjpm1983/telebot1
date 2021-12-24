@@ -5,6 +5,8 @@ from flask import Flask, request
 
 import telegram
 
+from telegram.ext import Updater, CallbackQueryHandler, CallbackContext
+
 from telebot.credentials import bot_token, bot_user_name,URL
 from telebot.mastermind import get_response
 
@@ -25,6 +27,11 @@ app = Flask(__name__)
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
+
+    #updater = Updater(TOKEN)
+
+    #updater.dispatcher.add_handler(CallbackQueryHandler(button))
+    
     # retrieve the message in JSON and then transform it to Telegram object
     update = telegram.Update.de_json(request.get_json(force=True), bot)
 # get the chat_id to be able to respond to the same user
@@ -44,20 +51,33 @@ def respond():
         return 'ok'
     '''
     
-    response = get_response(text)
+    bundle = get_response(text)
 # now just send the message back
     # notice how we specify the chat and the msg we reply to
     #bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
-
+    response = bundle["txt"]
     if len(response) > 4096:
        for x in range(0, len(response), 4096):
           bot.send_message(chat_id=chat_id, text=response[x:x+4096])
     else:
        bot.send_message(chat_id=chat_id, text=response)
 
-
+    if "btns" in bundle.keys():
+       btns = bundle["btns"]
+       #bot.sendMessage (chat_id=chat_id, text=str("---"), reply_markup=btns)
+    
     return 'ok'
 
+
+def button(update: telegram.Update, context: CallbackContext) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    query.answer()
+
+    query.edit_message_text(text=f"Selected option: {query.data}")
 
 
 @app.route('/setwebhook', methods=['GET', 'POST'])

@@ -11,10 +11,32 @@ def get_response(msg):
                 cur.execute('select short_name from books')
                 r = cur.fetchall()
                 libros = " "
+                botones=[]
+                #botones.append([])
+                #subbotones.append([])
+                i=0
                 for l in r:
                     #print(l)
                     libros = libros + "/" + l[0] + "   "
-                return libros
+                    #libros como botones
+
+                    if (i%6==0):
+                       botones.append([])
+                    botones[len(botones)-1].append({'text': l[0], 'callback_data': "libro %s"%(l[0])})
+
+                    #botones[0].append({'text': l[0], 'callback_data': 'Return value 1'})
+                    #botones[1].append({'text': l[0], 'callback_data': 'Return value 1'})
+                    i=i+1
+
+                markup = {'inline_keyboard': botones}
+
+                #markup = {'inline_keyboard': [[{'text': 'Gn', 'callback_data': 'Return value 1'},
+                #         {'text': 'Mt', 'callback_data': 'Return value 2'}]]}
+
+                bundle = {"txt":libros,"btns":markup}
+                return  bundle
+
+
 
       #No tiene  undescore
      if ( (msg.find('_')==-1) and (msg.find('/')!=-1) ):
@@ -31,7 +53,7 @@ def get_response(msg):
             capitulos = bl + "\n "
             for i in range(1,int(cantidadCap)+1):
                capitulos = capitulos + "  /" + m + "_" + str(i)
-            return capitulos
+            return {"txt":capitulos}
 
 
      if ( (msg.find('_')!=-1) and (msg.find('/')!=-1) ):
@@ -70,7 +92,7 @@ def get_response(msg):
             salida = salida  + " >" + " /" + bl + "_" + str(int(partes[1])+1)
         
 
-        return salida
+        return {"txt":salida}
 
      
 
@@ -89,6 +111,6 @@ def get_response(msg):
 
      con.close  
 
-     return salida
+     return {"txt":salida}
 
 
