@@ -2,14 +2,23 @@ from flask import Flask, request
 import os
 import logging
 import telegram
+<<<<<<< HEAD
 import logging
 from telegram.ext import Updater, CallbackQueryHandler, CallbackContext
 
+=======
+import time
+from telegram import Update
+from telegram.ext import CallbackContext, CommandHandler, Updater
+
+#locales
+>>>>>>> a98faf402432e301ad5c49d769e913d6896449b5
 from telebot.credentials import bot_token, bot_user_name,URL
 from telebot.mastermind import get_response
 #global bot
 global TOKEN
 TOKEN = bot_token
+<<<<<<< HEAD
 bot = telegram.Bot(token=TOKEN)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
@@ -92,6 +101,33 @@ def button(update: telegram.Update, context: CallbackContext) -> None:
     query.answer()
 
     query.edit_message_text(text=f"Selected option: {query.data}")
+=======
+#bot = telegram.Bot(token=TOKEN)
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logger = logging.getLogger("test")
+#herokuname = "name"
+#PORT = int(os.environ.get('PORT', '8443'))
+updater = Updater(TOKEN, use_context=True)
+bot = updater.bot
+update_queue = updater.update_queue
+dispatcher = updater.dispatcher
+
+app = Flask(__name__)
+
+@app.route('/' + TOKEN, methods=['POST'])
+def webhook():
+    update = telegram.update.Update.de_json(request.get_json(force=True), bot)
+    logger.info(f"update id is : {update.update_id}")
+    update_queue.put(update)
+    return 'OK'
+
+
+def start(update:Update, context:CallbackContext):
+    msg_id = update.message.message_id
+    update.message.reply_text("ok")
+>>>>>>> a98faf402432e301ad5c49d769e913d6896449b5
+
 
 #eSTE ultimo ejemplo no incluye esta funcionsino que llama setwebhook 
 #en elmain, lodejamos pues no debe de dar conflicto
