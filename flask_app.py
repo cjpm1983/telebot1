@@ -34,6 +34,7 @@ def webhook():
 
 
 def start(update:Update, context:CallbackContext):
+    msg_id = update.message.message_id
     update.message.reply_text("ok")
 
 
