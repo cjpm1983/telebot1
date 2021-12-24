@@ -5,7 +5,6 @@ from flask import Flask, request
 
 import telegram
 
-from telegram.ext import Updater, CallbackQueryHandler, CallbackContext
 
 from telebot.credentials import bot_token, bot_user_name,URL
 from telebot.mastermind import get_response
@@ -15,7 +14,8 @@ global TOKEN
 TOKEN = bot_token
 bot = telegram.Bot(token=TOKEN)
 
-
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 
 #from telegram.ext import (Updater, CommandHandler)
 
@@ -28,9 +28,11 @@ app = Flask(__name__)
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
 
-    #updater = Updater(TOKEN)
+    updater = Updater(TOKEN)
 
-    #updater.dispatcher.add_handler(CallbackQueryHandler(button))
+    updater.dispatcher.add_handler(CallbackQueryHandler(button))
+    echo_handler = MessageHandler(Filters.text), echo)
+    updater.dispatcher.add_handler(echo_handler)
     
     # retrieve the message in JSON and then transform it to Telegram object
     update = telegram.Update.de_json(request.get_json(force=True), bot)
@@ -42,19 +44,10 @@ def respond():
     text = update.message.text.encode('utf-8').decode()
     print("got text message :", text)
 # here we call our super AI
-    '''
-    markup = {'inline_keyboard': [[{'text': 'Gn', 'callback_data': 'Return value 1'},
-             {'text': 'Mt', 'callback_data': 'Return value 2'}]]}
-    if text == '/start':
-        bot.sendMessage (chat_id=chat_id, text=str("Hi! Which one do you want? choose from the below keyboard buttons."), reply_markup=markup)
-        bot.sendMessage(chat_id=chat_id, text=str(now.hour)+str(":")+str(now.minute))
-        return 'ok'
-    '''
-    
+
+    '''    
     bundle = get_response(text)
-# now just send the message back
-    # notice how we specify the chat and the msg we reply to
-    #bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
+
     response = bundle["txt"]
     if len(response) > 4096:
        for x in range(0, len(response), 4096):
@@ -65,7 +58,7 @@ def respond():
     if "btns" in bundle.keys():
        btns = bundle["btns"]
        #bot.sendMessage (chat_id=chat_id, text=str("---"), reply_markup=btns)
-    
+    '''
     return 'ok'
 
 
