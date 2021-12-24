@@ -4,7 +4,7 @@
 from flask import Flask, request
 
 import telegram
-
+import logging
 from telegram.ext import Updater, CallbackQueryHandler, CallbackContext
 
 from telebot.credentials import bot_token, bot_user_name,URL
@@ -15,7 +15,8 @@ global TOKEN
 TOKEN = bot_token
 bot = telegram.Bot(token=TOKEN)
 
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logger = logging.getLogger("test")
 
 #from telegram.ext import (Updater, CommandHandler)
 
@@ -27,19 +28,34 @@ app = Flask(__name__)
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
+    #updatet = telegram.Update
+    #query = updatet.callback_query
 
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    #query.answer()
     #updater = Updater(TOKEN)
 
     #updater.dispatcher.add_handler(CallbackQueryHandler(button))
     
     # retrieve the message in JSON and then transform it to Telegram object
     update = telegram.Update.de_json(request.get_json(force=True), bot)
-# get the chat_id to be able to respond to the same user
-    chat_id = update.message.chat.id
-    # get the message id to be able to reply to this specific message
-    msg_id = update.message.message_id
-# Telegram understands UTF-8, so encode text for unicode compatibility
-    text = update.message.text.encode('utf-8').decode()
+    logger.info(f"update id is : {update}")
+    chat_id=-1
+    msg_id=-1
+    text = ""
+    bundle = {}
+    if (update.callback_query):
+        chat_id = update.callback_query.message.chat.id
+        msg_id = update.callback_query.message.message_id
+        text = update.callback_query.data.encode('utf-8').decode()
+        
+    else:
+       chat_id = update.message.chat.id
+       msg_id = update.message.message_id
+       text = update.message.text.encode('utf-8').decode()
+
+    bundle = get_response(text)
     print("got text message :", text)
 # here we call our super AI
     '''
@@ -50,8 +66,9 @@ def respond():
         bot.sendMessage(chat_id=chat_id, text=str(now.hour)+str(":")+str(now.minute))
         return 'ok'
     '''
-    
-    bundle = get_response(text)
+    #logger.info(f"update id is : {update}")
+
+    #bundle = get_response(text)
 # now just send the message back
     # notice how we specify the chat and the msg we reply to
     #bot.sendMessage(chat_id=chat_id, text=response, reply_to_message_id=msg_id)
@@ -64,7 +81,7 @@ def respond():
 
     if "btns" in bundle.keys():
        btns = bundle["btns"]
-       #bot.sendMessage (chat_id=chat_id, text=str("---"), reply_markup=btns)
+       bot.sendMessage (chat_id=chat_id, text=str("------------------"), reply_markup=btns)
     
     return 'ok'
 

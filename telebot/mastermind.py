@@ -17,12 +17,14 @@ def get_response(msg):
                 i=0
                 for l in r:
                     #print(l)
-                    libros = libros + "/" + l[0] + "   "
+                    
+                    #libros = libros + "/" + l[0] + "   "
+                    
                     #libros como botones
 
                     if (i%6==0):
                        botones.append([])
-                    botones[len(botones)-1].append({'text': l[0], 'callback_data': "libro %s"%(l[0])})
+                    botones[len(botones)-1].append({'text': l[0], 'callback_data': "/%s"%(l[0])})
 
                     #botones[0].append({'text': l[0], 'callback_data': 'Return value 1'})
                     #botones[1].append({'text': l[0], 'callback_data': 'Return value 1'})
@@ -33,7 +35,7 @@ def get_response(msg):
                 #markup = {'inline_keyboard': [[{'text': 'Gn', 'callback_data': 'Return value 1'},
                 #         {'text': 'Mt', 'callback_data': 'Return value 2'}]]}
 
-                bundle = {"txt":libros,"btns":markup}
+                bundle = {"txt":"------\nlibros\n------","btns":markup}
                 return  bundle
 
 
@@ -51,10 +53,30 @@ def get_response(msg):
             d = cur.execute('select max( chapter) from verses where book_number = :p1 ',{'p1':bn})
             cantidadCap=d.fetchone()[0]            
             capitulos = bl + "\n "
-            for i in range(1,int(cantidadCap)+1):
-               capitulos = capitulos + "  /" + m + "_" + str(i)
-            return {"txt":capitulos}
+            #for i in range(1,int(cantidadCap)+1):
+            #   capitulos = capitulos + "  /" + m + "_" + str(i)
+            
+            #return {"txt":capitulos}
+            botonesc=[]
+            #j=0
+            for j in range(0,int(cantidadCap)):
+                    #capitulos = capitulos + "  /" + m + "_" + str(i)
+                
+                    if (j%6==0):
+                       botonesc.append([])
+                    botonesc[len(botonesc)-1].append({'text': m + " " + str(j+1), 'callback_data': "/%s"%(m + "_" + str(j+1))})
 
+                    #botones[0].append({'text': l[0], 'callback_data': 'Return value 1'})
+                    #botones[1].append({'text': l[0], 'callback_data': 'Return value 1'})
+                    j=j+1
+
+            markup = {'inline_keyboard': botonesc}
+
+                #markup = {'inline_keyboard': [[{'text': 'Gn', 'callback_data': 'Return value 1'},
+                #         {'text': 'Mt', 'callback_data': 'Return value 2'}]]}
+
+            bundle = {"txt":f"------\n{bl}\n------","btns":markup}
+            return  bundle
 
      if ( (msg.find('_')!=-1) and (msg.find('/')!=-1) ):
 
@@ -64,8 +86,7 @@ def get_response(msg):
 
         b=cur.execute('select * from books where short_name=:libro',{'libro':partes[0]})
         t = b.fetchone()
-        bn = t[1
-]
+        bn = t[1]
         bl = t[2]
 
         cur.execute('select * from verses where book_number = :p1 and chapter = :p2 ',{'p1':bn, "p2":partes[1]})
@@ -85,14 +106,16 @@ def get_response(msg):
         cantidadCap=d.fetchone()[0]
 
         salida = salida + "\n"
-        
+        botones = []
+        botones.append([])
         if (int(partes[1]) > 1):
-            salida = salida + "/" + bl + "_" + str(int(partes[1])-1)  + " < "
+            #salida = salida + "/" + bl + "_" + str(int(partes[1])-1)  + " < "
+            botones[0].append({"text":"< " + bl + " " + str(int(partes[1])-1),"callback_data" :"/" + bl + "_" + str(int(partes[1])-1)})
         if (int(partes[1]) < cantidadCap):
-            salida = salida  + " >" + " /" + bl + "_" + str(int(partes[1])+1)
-        
-
-        return {"txt":salida}
+            #salida = salida  + " >" + " /" + bl + "_" + str(int(partes[1])+1)
+            botones[0].append({"text":"" + bl + " " + str(int(partes[1])+1) + " >","callback_data" :"/" + bl + "_" + str(int(partes[1])+1)})
+        markup = {'inline_keyboard': botones}
+        return {"txt":salida,"btns":markup}
 
      
 
