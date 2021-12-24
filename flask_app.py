@@ -31,18 +31,19 @@ def respond():
     updater = Updater(TOKEN)
 
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
-    echo_handler = MessageHandler(Filters.text), echo)
+    echo_handler = MessageHandler(Filters.all, echo)
     updater.dispatcher.add_handler(echo_handler)
     
     # retrieve the message in JSON and then transform it to Telegram object
     update = telegram.Update.de_json(request.get_json(force=True), bot)
 # get the chat_id to be able to respond to the same user
-    chat_id = update.message.chat.id
-    # get the message id to be able to reply to this specific message
-    msg_id = update.message.message_id
+    #chat_id = update.message.chat.id
+    
+# get the message id to be able to reply to this specific message
+    #msg_id = update.message.message_id
 # Telegram understands UTF-8, so encode text for unicode compatibility
-    text = update.message.text.encode('utf-8').decode()
-    print("got text message :", text)
+    #text = update.message.text.encode('utf-8').decode()
+    #print("got text message :", text)
 # here we call our super AI
 
     '''    
@@ -71,6 +72,10 @@ def button(update: telegram.Update, context: CallbackContext) -> None:
     query.answer()
 
     query.edit_message_text(text=f"Selected option: {query.data}")
+
+def echo(update, context):
+   context.bot.send_message(chat_id = update.effective_chat.id, text = update.message.text)
+
 
 
 @app.route('/setwebhook', methods=['GET', 'POST'])
